@@ -1,9 +1,9 @@
 html,
-body {
-    height: 100%;
+body{
     margin: 0;
     font-family: "Montserrat", sans-serif;
     background: lightgray;
+    height: 100%;
 }
 
 .box {
@@ -12,21 +12,41 @@ body {
     height: 100%;
 }
 
-.box .row {
+.row {
     border: 1px dotted grey;
 }
 
-.box .row.header {
+.row.header {
     border: none;
     flex: 0 1 auto;
+
+    display: flex;
+    flex-flow: row;
+
+    padding: 5px;
 }
 
-.box .row.content {
+.row.content {
     border: none;
     flex: 1 1 auto;
 }
 
-.box .row.footer {
+.row.footer {
     border: none;
     flex: 0 1 10px;
+}
+
+.chatrow {
+    display: flex;
+    flex-flow: row;
+}
+
+.chat.header {
+    padding: 5px 0px 5px 10px;
+}
+
+.chatframe {
+    border: none;
+    width: 100%;
+    height: 100%;
 }
