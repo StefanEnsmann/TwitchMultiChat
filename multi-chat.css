@@ -1,0 +1,32 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+    background: lightgray;
+}
+
+.box {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.box .row {
+    border: 1px dotted grey;
+}
+
+.box .row.header {
+    border: none;
+    flex: 0 1 auto;
+}
+
+.box .row.content {
+    border: none;
+    flex: 1 1 auto;
+}
+
+.box .row.footer {
+    border: none;
+    flex: 0 1 10px;
+}

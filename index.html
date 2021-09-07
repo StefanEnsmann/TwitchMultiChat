@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Zensmann's Twitch Multi-Chat</title>
+        <meta property="og:title" content="Twitch Multi-Chat" />
+        <meta property="og:description" content="Display multiple Twitch chats in a single window." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://tools.ensmann.de/multi-chat.html" />
+        <meta property="og:image" content="https://tools.ensmann.de/img/multi-chat-hover.png" />
+        <meta property="og:image:type" content="image/png" />
+        <link rel="shortcut icon" type="image/x-icon" href="../img/favicon.ico" />
+        <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="multi-chat.css" />
+        <script src="../parameters.js"></script>
+        <script src="multi-chat.js"></script>
+    </head>
+    <body>
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<script>
+let userNameRegEx = /^[a-zA-Z0-9_]{4,25}$/;
+let amp = String.fromCharCode(38);
+function getUserList() {
+    let userString = document.getElementById("multiChatChannels").value;
+    let users = userString.split(";")
+    let finalUsers = [];
+    let wrongUsers = [];
+    users.forEach(user => {if (user === "") return; if (userNameRegEx.test(user)) finalUsers.push(user); else wrongUsers.push(user);});
+    if (wrongUsers.length > 0) {
+        alert("The following users are no valid Twitch account names: " + wrongUsers.join(", "));
+    }
+    return finalUsers;
+}
+function openMultiChat() {
+    let users = getUserList();
+    if (users.length > 0) {
+        let url = "https://tools.ensmann.de/multi-chat/";
+        console.log(amp);
+        for (var i = 0; i < users.length; ++i) {
+            url += (i === 0 ? "?" : amp) + "c=" + users[i];
+            console.log(url);
+        }
+        if (document.getElementById("multiChatDarkMode").checked) {
+            url += amp + "dm";
+            console.log(url);
+        }
+        if (document.getElementById("multiChatTwoRows").checked) {
+            url += amp + "tr";
+            console.log(url);
+        }
+        console.log(url);
+        if (url != null) {
+            window.open(url);
+        }
+    }
+}
+function openMultiStreams() {
+    let users = getUserList();
+    if (users.length > 0) {
+        let url = null;
+        let service = document.getElementById("multiChatStreams").value;
+        switch (service) {
+                case "ms":
+                if (users.length > 8) {
+                    while (users.length > 8) {
+                        users.pop();
+                    }
+                    alert("Since MultiStre.am supports a maximum amount of 8 streams, your request has been shortened to the 8 first channels!");
+                }
+                url = "https://multistre.am/" + users.join("/");
+                break;
+            case "mt":
+                url = "http://multitwitch.tv/" + users.join("/");
+                break;
+            case "mtb":
+                url = "https://multitwitch.live/" + users.join("/");
+                break;
+            case "tt":
+                url = "https://twitchtheater.tv/" + users.join("/");
+                break;
+            default:
+                alert("There was an error opening the streaming service!");
+        }
+        if (url != null) {
+            window.open(url);
+        }
+    }
+}
+</script>
+<div style="display:flex;flex-direction:row;margin-bottom: 5px;">
+<input type="text" name="multiChatChannels" id="multiChatChannels" style="flex:1;" placeholder="Enter channel names, separated with semicolon (;)">
+<button name="multiChatSend" class="multiChatButton" onclick="openMultiChat()">Open Multi-Chat</button>
+</div>
+<div style="display:flex;flex-direction:row;margin-bottom: 5px;">
+<select id="multiChatStreams" style="flex:1;margin:2px;">
+<option value="ms">Multistre.am</option>
+<option value="mt">MultiTwitch.tv</option>
+<option value="mtb">MultiTwitch.tv (beta)</option>
+<option value="tt">TwitchTheater.tv</option>
+</select>
+<button name="multiChatOpenStream" class="multiChatButton" onclick="openMultiStreams()">Open Multi-Stream</button>
+</div>
+<div><input type="checkbox" id="multiChatTwoRows" name="multiChatTwoRows" value="multiChatTwoRows"> Use two rows
+<input type="checkbox" id="multiChatDarkMode" name="multiChatDarkMode" value="multiChatDarkMode" style="margin-left:10px;"> Use dark mode</div>
