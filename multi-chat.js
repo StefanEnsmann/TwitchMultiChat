@@ -8,18 +8,18 @@ function init() {
     let q = urlParams.get("query");
 
     darkMode = q.get("dm") !== undefined && q.get("dm").length > 0 ? true : false;
-    $("#multiChatDarkMode").checked = darkMode;
+    $("#multiChatDarkMode").prop("checked", darkMode);
     darkModeChanged(darkMode);
 
     rowCount = q.get("rc") !== undefined && !isNaN(parseInt(q.get("rc"))) ? parseInt(q.get("rc")) : 1;
-    $("#rowCount").value = rowCount;
+    $("#rowCount").val(rowCount);
     rowCountChanged(rowCount);
     
     paramUsers = q.get("c");
 
     if (paramUsers !== undefined) {
         users = paramUsers;
-        $("#multiChatChannels").value = ";".join(users);
+        $("#multiChatChannels").val(users.join(";"));
         loadChats()
     }
 }
@@ -40,7 +40,7 @@ function generateURL() {
     let url = "https://tools.ensmann.de/multi-chat/";
     let hasQM = false;
     if (users.length > 0) {
-        url += "?c=" + "&c=".join(users);
+        url += "?c=" + users.join("&c=");
         hasQM = true;
     }
     if (darkMode) {
@@ -53,7 +53,7 @@ function generateURL() {
         hasQM = true;
         url += "rc=" + rowCount;
     }
-    return generateURL;
+    return url;
 }
 
 function loadChats() {
@@ -66,9 +66,11 @@ function loadChats() {
         let rowIndex = index / usersPerRow;
         rows.slice(rowIndex, rowIndex + 1).append(generateChatBox(element, "chat" + index, darkMode));
     });
+    history.pushState("", window.document.title, generateURL());
 }
 
 function darkModeChanged(useDarkMode) {
+    console.log("dmc");
     darkMode = useDarkMode;
     if (darkMode) {
         document.body.classList.add("dark");
@@ -84,9 +86,11 @@ function darkModeChanged(useDarkMode) {
             $(this).attr("src", src.replace("&darkpopout", ""));
         });
     }
+    history.pushState("", window.document.title, generateURL());
 }
 
 function rowCountChanged(rowValue) {
+    console.log("rcc");
     rowCount = rowValue;
     let chatRows = $(".chatrow");
     if (chatRows.length < rowCount) {
@@ -106,6 +110,7 @@ function rowCountChanged(rowValue) {
             }
         });
     }
+    history.pushState("", window.document.title, generateURL());
 }
 
 function calculateEntryCounts(entries, rows) {
