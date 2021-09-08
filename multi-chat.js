@@ -5,7 +5,6 @@ let rowCount = 0;
 
 function init() {
     let urlParams = parseURLParams(window.location.href);
-    console.log(urlParams);
     let q = urlParams.get("query");
 
     darkMode = q.get("dm") !== undefined && q.get("dm").length > 0 ? true : false;
@@ -26,7 +25,7 @@ function init() {
 }
 
 function getUserList() {
-    let userString = $("multiChatChannels").value;
+    let userString = $("#multiChatChannels").val();
     let users = userString.split(";")
     let finalUsers = [];
     let wrongUsers = [];
@@ -61,37 +60,33 @@ function loadChats() {
     users = getUserList();
     window.document.title = "Multi-Chat: " + users.join(", ");
     $(".chat.box").remove();
-}
-
-function startChats() {
-    let index = 0;
-    for (let i = 0; i < 2; ++i) {
-        let limit = i == 0 ? Math.min(dividor, chanCount) : chanCount;
-        for (; index < limit; ++index) {
-            channels[index] = channels[index].trim()
-            let currentFrame = template
-            .replace("$id$", "chat" + index)
-            .replace("$channelDisplay$", channels[index].trim())
-            .replace(/\$channel\$/g, channels[index].trim().toLowerCase())
-            .replace("$darkmode$", useDarkMode)
-            .replace("$w$", "" + (i === 0 ? width1 : width2))
-            .replace("$h$", height);
-            newContent = newContent + currentFrame;
-        }
-        if (i === 1 && useTwoRows) {
-            newContent = newContent + "<br />";
-        }
-    }
+    let rows = $(".chatrow");
+    let usersPerRow = users.length / rowCount;
+    users.forEach(function(element, index) {
+        let rowIndex = index / usersPerRow;
+        rows.slice(rowIndex, rowIndex + 1).append(generateChatBox(element, "chat" + index, darkMode));
+    });
 }
 
 function darkModeChanged(useDarkMode) {
-    console.log("darkModeChanged triggered");
     darkMode = useDarkMode;
-    $("body").css("background-color", darkMode ? "black": "");
+    if (darkMode) {
+        document.body.classList.add("dark");
+        $(".chatframe").each(function() {
+            let src = $(this).attr("src");
+            $(this).attr("src", src + "&darkpopout");
+        });
+    }
+    else {
+        document.body.classList.remove("dark");
+        $(".chatframe").each(function() {
+            let src = $(this).attr("src");
+            $(this).attr("src", src.replace("&darkpopout", ""));
+        });
+    }
 }
 
 function rowCountChanged(rowValue) {
-    console.log("rowCountChanged triggered");
     rowCount = rowValue;
     let chatRows = $(".chatrow");
     if (chatRows.length < rowCount) {
@@ -102,6 +97,7 @@ function rowCountChanged(rowValue) {
             chatbox.append(div);
         }
     }
+    chatRows = $(".chatrow");
     distributeChatsToRows(chatRows);
     if (chatRows.length > rowCount) {
         chatRows.each(function(index) {
@@ -112,17 +108,23 @@ function rowCountChanged(rowValue) {
     }
 }
 
+function calculateEntryCounts(entries, rows) {
+    let result = [];
+    let remainder = entries % rows;
+    let entriesPerRow = Math.floor(entries / rows);
+    for (let idx = 0; idx < rows; ++idx) {
+        result.push(idx < remainder ? entriesPerRow + 1 : entriesPerRow);
+    }
+    return result;
+}
+
 function distributeChatsToRows(chatRows) {
-    let chatsPerRow = users.length / rowCount;
+    let entries = calculateEntryCounts(Math.round(users.length), Math.round(rowCount));
     let chats = $(".chat.box");
-    chats.detach();
-    chatRows.each(function(index) {
-        if (index == rowCount - 1) {
-            $(this).append(chats.slice(index * chatsPerRow));
-        }
-        else {
-            $(this).append(chats.slice(index * chatsPerRow, (index + 1) * chatsPerRow - 1));
-        }
+    let lowerIndex = 0;
+    chatRows.slice(0, rowCount).each(function(index) {
+        $(this).append(chats.slice(lowerIndex, lowerIndex + entries[index]));
+        lowerIndex += entries[index];
     });
 }
 
@@ -158,18 +160,16 @@ function openMultiStreams() {
     }
 }
 
-function generateChatBox(width, height, channel, id, darkmode) {
+function generateChatBox(channel, id, darkmode) {
     let lowerChannel = channel.toLowerCase();
     let outerDiv = document.createElement("div");
     outerDiv.classList.add("chat", "box");
-    outerDiv.style.float = "left";
-    outerDiv.style.width = width + "%";
-    outerDiv.style.height = height + "%";
     let header = document.createElement("div");
     header.classList.add("row", "chat", "header");
     let channelLink = document.createElement("a");
     channelLink.href = "https://www.twitch.tv/" + lowerChannel;
     channelLink.target = "_blank";
+    channelLink.innerHTML = channel;
     header.appendChild(channelLink);
     outerDiv.appendChild(header);
     let chatBoxDiv = document.createElement("div");
@@ -177,7 +177,7 @@ function generateChatBox(width, height, channel, id, darkmode) {
     let iFrame = document.createElement("iframe");
     iFrame.classList.add("chatframe");
     iFrame.id = "chat" + id;
-    iFrame.src = "https://www.twitch.tv/embed/" + lowerChannel + "/chat?parent=tools.ensmann.de$darkmode$" + (darkmode ? "&darkpopout" : "");
+    iFrame.src = "https://www.twitch.tv/embed/" + lowerChannel + "/chat?parent=tools.ensmann.de" + (darkmode ? "&darkpopout" : "");
     iFrame.innerHTML = "iframes not supported";
     chatBoxDiv.appendChild(iFrame);
     outerDiv.appendChild(chatBoxDiv);

@@ -6,18 +6,37 @@ body{
     height: 100%;
 }
 
+body.dark {
+    background: black;
+    color: white;
+}
+
+body.dark button {
+    background-color: darkslategray;
+    color: white;
+}
+
+body.dark input {
+    background-color: darkslategray;
+    color: white;
+}
+
+body.dark input::placeholder {
+    color: lightgray;
+}
+
+body.dark select {
+    background: darkslategray;
+    color: white;
+}
+
 .box {
     display: flex;
     flex-flow: column;
     height: 100%;
 }
 
-.row {
-    border: 1px dotted grey;
-}
-
 .row.header {
-    border: none;
     flex: 0 1 auto;
 
     display: flex;
@@ -27,18 +46,20 @@ body{
 }
 
 .row.content {
-    border: none;
     flex: 1 1 auto;
 }
 
 .row.footer {
-    border: none;
     flex: 0 1 10px;
 }
 
 .chatrow {
     display: flex;
     flex-flow: row;
+}
+
+.chat {
+    flex: 1 1 auto;
 }
 
 .chat.header {
